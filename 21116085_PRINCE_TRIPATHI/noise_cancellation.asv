@@ -1,0 +1,43 @@
+% Define parameters
+N = 1000; % number of samples
+fs = 1000; % sampling frequency
+fc = 50; % noise frequency
+t = (0:N-1)/fs; % time vector
+
+% Create noisy message signal
+message = 2*sin(2*pi*10*t) + 0.5*sin(2*pi*50*t) + 0.2*sin(2*pi*200*t); % message signal
+noise = 0.5*sin(2*pi*fc*t); % noise signal
+noisy_signal = message + noise; % noisy signal
+
+% Initialize filter coefficients
+M = 100; % filter order
+mu = 0.001; % step size
+w = zeros(M,1); % initial weights
+
+% Apply LMS algorithm for active noise cancellation
+y = zeros(N,1); % filtered output
+e = zeros(N,1); % error signal
+for n = M:N
+    x = noisy_signal(n:-1:n-M+1); % input signal
+    y(n) = w.*x; % filtered output
+    e(n) = noisy_signal(n) - y(n); % error signal
+    w = w + mu*e(n)*x; % update weights
+end
+
+% Plot signals
+figure;
+subplot(3,1,1);
+plot(t,message);
+title('Message Signal');
+xlabel('Time (s)');
+ylabel('Amplitude');
+subplot(3,1,2);
+plot(t,noisy_signal);
+title('Noisy Signal');
+xlabel('Time (s)');
+ylabel('Amplitude');
+subplot(3,1,3);
+plot(t,y);
+title('Filtered Signal');
+xlabel('Time (s)');
+ylabel('Amplitude');
